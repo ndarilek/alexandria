@@ -8,7 +8,7 @@ import toastr from "toastr"
 
 if(Meteor.isServer) {
   JsZip = require("jszip")
-  convert = require("ebook-convert")
+  exec = require("child_process").exec
   fs = require("fs")
   parseString = require("xml2js").parseString
   temp = require("temp")
@@ -23,37 +23,25 @@ const htmlz = new FS.Store.GridFS("htmlz", {
     type: "application/zip"
   }),
   transformWrite: (fileObj, readStream, writeStream) => {
-    console.log("Here1")
     const tempDir = temp.mkdirSync()
-    console.log("Here2", tempDir)
     const upload = fs.createWriteStream(tempDir+"/"+fileObj.name())
-    console.log("Here3", upload.path)
     readStream.pipe(upload)
     const baseName = upload.path
     const htmlzName = baseName+".htmlz"
-    console.log("Here4", htmlzName)
-    const htmlz = convert({
-      source: baseName,
-      target: htmlzName
-    })
-    console.log("Here5")
-    htmlz.on("data", console.log)
-    htmlz.on("error", (err) => console.log(err))
-    htmlz.on("message", (msg) => console.log(msg.toString()))
-    htmlz.on("exit", Meteor.bindEnvironment((code) => {
-      console.log("Here6", code)
-      if(code == 0) {
-        const target = fs.createReadStream(htmlzName)
-        target.pipe(writeStream)
-        fs.unlinkSync(baseName)
-        const zip = new JsZip(fs.readFileSync(htmlzName))
-        const metadata = zip.file("metadata.opf").asText()
-        parseString(metadata, {explicitArray: false, mergeAttrs: true, charkey: "char"}, (err, result) => {
-          fileObj.update({metadata: result.package.metadata})
-        })
-        fs.unlinkSync(htmlzName)
-        fileObj.update({formatVersion: 0})
-      }
+    exec(`/usr/bin/ebook-convert "${baseName}" "${htmlzName}"`, Meteor.bindEnvironment((err, stdout, stderr) => {
+      console.log(`stdout: ${stdout}`)
+      console.log(`stderr: ${stderr}`)
+      console.log(`error: ${err}`)
+      const target = fs.createReadStream(htmlzName)
+      target.pipe(writeStream)
+      fs.unlinkSync(baseName)
+      const zip = new JsZip(fs.readFileSync(htmlzName))
+      const metadata = zip.file("metadata.opf").asText()
+      parseString(metadata, {explicitArray: false, mergeAttrs: true, charkey: "char"}, (err, result) => {
+        fileObj.update({metadata: result.package.metadata})
+      })
+      fs.unlinkSync(htmlzName)
+      fileObj.update({formatVersion: 0})
     }))
   }
 })
