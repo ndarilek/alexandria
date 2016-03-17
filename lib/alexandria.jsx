@@ -29,19 +29,23 @@ const htmlz = new FS.Store.GridFS("htmlz", {
     const baseName = upload.path
     const htmlzName = baseName+".htmlz"
     exec(`/usr/bin/ebook-convert "${baseName}" "${htmlzName}"`, Meteor.bindEnvironment((err, stdout, stderr) => {
-      console.log(`stdout: ${stdout}`)
-      console.log(`stderr: ${stderr}`)
-      console.log(`error: ${err}`)
+      if(stdout)
+        console.log(`${stdout}`)
+      if(stderr)
+        console.error(`${stderr}`)
+      if(err)
+        console.error(`Error: ${err}`)
       const target = fs.createReadStream(htmlzName)
       target.pipe(writeStream)
       fs.unlinkSync(baseName)
       const zip = new JsZip(fs.readFileSync(htmlzName))
       const metadata = zip.file("metadata.opf").asText()
       parseString(metadata, {explicitArray: false, mergeAttrs: true, charkey: "char"}, (err, result) => {
-        fileObj.update({metadata: result.package.metadata})
+        if(err)
+          console.error(`Error: ${err}`)
+        fileObj.update({metadata: result.package.metadata, formatVersion: 0})
+        fs.unlinkSync(htmlzName)
       })
-      fs.unlinkSync(htmlzName)
-      fileObj.update({formatVersion: 0})
     }))
   }
 })
