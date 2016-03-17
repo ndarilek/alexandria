@@ -7,7 +7,6 @@
 meteor-base
 mongo
 tracker
-jagi:astronomy
 es5-shim
 ecmascript
 twbs:bootstrap
