@@ -7,6 +7,7 @@ Books = require("/lib/alexandria.jsx").Books
 Books.allow
   insert: -> true
   update: -> true
+  remove: -> true
 
 Meteor.publish "books", ->
   Books.find({}, {fields: {"original.name": 1, metadata: 1}})
