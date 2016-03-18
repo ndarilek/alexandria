@@ -130,14 +130,30 @@ const pkgdef :Spk.PackageDefinition = (
   ),
 
   sourceMap = (
-    # The following directories will be copied into your package.
+    # Here we defined where to look for files to copy into your package. The
+    # `spk dev` command actually figures out what files your app needs
+    # automatically by running it on a FUSE filesystem. So, the mappings
+    # here are only to tell it where to find files that the app wants.
     searchPath = [
-      ( sourcePath = "/home/vagrant/bundle" ),
-      ( sourcePath = "/opt/meteor-spk/meteor-spk.deps" )
+      ( sourcePath = "." ),  # Search this directory first.
+      ( sourcePath = "/",    # Then search the system root directory.
+        hidePaths = ["proc", "sys",
+                      "etc/passwd", "etc/hosts", "etc/host.conf",
+                      "etc/nsswitch.conf", "etc/resolv.conf, etc/ssl" ]
+        # You probably don't want the app pulling files from these places,
+        # so we hide them. Note that /dev, /var, and /tmp are implicitly
+        # hidden because Sandstorm itself provides them.
+      )
     ]
   ),
 
-  alwaysInclude = [ "." ],
+  fileList = "sandstorm-files.list",
+
+  alwaysInclude = [
+    "home/vagrant/bundle",
+    "usr/lib/calibre",
+    "usr/share/calibre"
+  ],
   # This says that we always want to include all files from the source map.
   # (An alternative is to automatically detect dependencies by watching what
   # the app opens while running in dev mode. To see what that looks like,
