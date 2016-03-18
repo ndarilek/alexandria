@@ -36,17 +36,22 @@ const htmlz = new FS.Store.GridFS("htmlz", {
         console.error(`${stderr}`)
       if(err)
         console.error(`Error: ${err}`)
-      const target = fs.createReadStream(htmlzName)
-      target.pipe(writeStream)
-      fs.unlinkSync(baseName)
-      const zip = new JsZip(fs.readFileSync(htmlzName))
-      const metadata = zip.file("metadata.opf").asText()
-      parseString(metadata, {explicitArray: false, mergeAttrs: true, charkey: "char"}, (err, result) => {
-        if(err)
-          console.error(`Error: ${err}`)
-        fileObj.update({metadata: result.package.metadata, formatVersion: 0})
-        fs.unlinkSync(htmlzName)
-      })
+      else {
+        const target = fs.createReadStream(htmlzName)
+        target.pipe(writeStream)
+        if(fs.existsSync(baseName))
+          fs.unlinkSync(baseName)
+        const zip = new JsZip(fs.readFileSync(htmlzName))
+        const metadata = zip.file("metadata.opf").asText()
+        parseString(metadata, {explicitArray: false, mergeAttrs: true, charkey: "char"}, (err, result) => {
+          if(err)
+            console.error(`Error: ${err}`)
+          else
+            fileObj.update({metadata: result.package.metadata, formatVersion: 0})
+          if(fs.existsSync(htmlzName))
+            fs.unlinkSync(htmlzName)
+        })
+      }
     }))
   }
 })
@@ -83,7 +88,10 @@ export const BookListUI = ({books, remove}) => <div>
       {books.map((b) => <tr>
         <td><Link to={`/books/${b._id}`}>{title(b)}</Link></td>
         <td>{author(b)}</td>
-        <td><Button onClick={remove(b._id)}>Remove</Button></td>
+        <td><Button onClick={() => {
+          if(confirm("Are you sure?"))
+            remove(b._id)()
+        }}>Remove</Button></td>
       </tr>)}
     </tbody>
   </table>
