@@ -135,11 +135,12 @@ const UploadUI = React.createClass({
     if(this.props.file)
       return <div>
         <Helmet title="Uploading"/>
-        <h1>Uploading</h1>
+        <h1>Uploading...</h1>
       </div>
     else
       return <div>
         <Helmet title="Upload Book"/>
+        <Link to="/">Home</Link>
         <h1>Upload Book</h1>
         <form onSubmit={this.onSubmit}>
           <forms.RenderForm ref="form" form={this.form}>
