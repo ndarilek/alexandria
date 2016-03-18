@@ -1,14 +1,14 @@
-$ = require("jquery")
-
 import React from  "react"
 import {Col, Grid, Row} from "react-bootstrap"
 import ReactDOM from  "react-dom"
+import Helmet from "react-helmet"
 import {composeWithTracker} from "react-komposer"
 import {IndexRoute, Router, Route, browserHistory} from "react-router"
 
 import {BookDisplay, BookList, Books, Upload} from "./alexandria.jsx"
 
 const Layout = (props) => <div>
+  <Helmet titleTemplate="%s - Alexandria"/>
   <Grid fluid={true}>
     <Row>
       <Col md={12}>

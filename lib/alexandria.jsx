@@ -2,6 +2,7 @@ import forms from "newforms"
 import BootstrapForm from "newforms-bootstrap"
 import React from "react"
 import {Button, ButtonToolbar} from "react-bootstrap"
+import Helmet from "react-helmet"
 import {composeWithTracker} from "react-komposer"
 import {Link, browserHistory} from "react-router"
 import toastr from "toastr"
@@ -67,6 +68,7 @@ const author = (book) => {
 }
 
 export const BookListUI = ({books, remove}) => <div>
+  <Helmet title="Books"/>
   <h1>Books</h1>
   <Link to="/new">New</Link>
   <table>
@@ -124,10 +126,12 @@ const UploadUI = React.createClass({
   render() {
     if(this.props.file)
       return <div>
+        <Helmet title="Uploading"/>
         <h1>Uploading</h1>
       </div>
     else
       return <div>
+        <Helmet title="Upload Book"/>
         <h1>Upload Book</h1>
         <form onSubmit={this.onSubmit}>
           <forms.RenderForm ref="form" form={this.form}>
@@ -156,7 +160,8 @@ const UploadContainer = (props, onData) => {
 
 export const Upload = composeWithTracker(UploadContainer)(UploadUI)
 
-const BookDisplayUI = ({id}) => <div>
+const BookDisplayUI = ({id, title}) => <div>
+  <Helmet title={title}/>
   <ButtonToolbar>
     <Link to="/">Home</Link>
   </ButtonToolbar>
@@ -164,10 +169,14 @@ const BookDisplayUI = ({id}) => <div>
 </div>
 
 const BookDisplayContainer = (props, onData) => {
-  if(Meteor.subscribe("books").ready())
-    onData(null, {
-      id: props.params.id
-    })
+  if(Meteor.subscribe("books").ready()) {
+    const id = props.params.id
+    const book = Books.findOne(id)
+    let ttl = title(book)
+    if(!ttl)
+      ttl = "Loading..."
+    onData(null, {id, title: ttl})
+  }
 }
 
 export const BookDisplay = composeWithTracker(BookDisplayContainer)(BookDisplayUI)
