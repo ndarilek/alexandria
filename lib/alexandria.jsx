@@ -8,6 +8,8 @@ import {Link, browserHistory} from "react-router"
 import {LinkContainer} from "react-router-bootstrap"
 import toastr from "toastr"
 
+import {hasPermission} from "./sandstorm"
+
 if(Meteor.isServer) {
   JsZip = require("jszip")
   exec = require("child_process").exec
@@ -73,18 +75,18 @@ const author = (book) => {
     return book.metadata["dc:creator"].char
 }
 
-export const BookListUI = ({books, remove}) => <div>
+export const BookListUI = ({books, canUpload, canRemove, remove}) => <div>
   <Helmet title="Books"/>
   <Navbar>
     <Navbar.Header>
       <Navbar.Brand>Alexandria</Navbar.Brand>
-      <Navbar.Toggle/>
+      { canUpload ? <Navbar.Toggle/> : null }
     </Navbar.Header>
-    <Navbar.Collapse>
+{ canUpload ?     <Navbar.Collapse>
       <Nav>
         <LinkContainer to="/new"><NavItem>Upload</NavItem></LinkContainer>
       </Nav>
-    </Navbar.Collapse>
+    </Navbar.Collapse> : null }
   </Navbar>
   <h1>Books</h1>
   <table>
@@ -92,17 +94,17 @@ export const BookListUI = ({books, remove}) => <div>
       <tr>
         <th>Title</th>
         <th>Author</th>
-        <th>Actions</th>
+        { canRemove ? <th>Actions</th> : null }
       </tr>
     </thead>
     <tbody>
       {books.map((b) => <tr>
         <td><Link to={`/books/${b._id}`}>{title(b)}</Link></td>
         <td>{author(b)}</td>
-        <td><Button onClick={() => {
+        { canRemove ? <td><Button onClick={() => {
           if(confirm("Are you sure?"))
             remove(b._id)()
-        }}>Remove</Button></td>
+        }}>Remove</Button></td>: null }
       </tr>)}
     </tbody>
   </table>
@@ -112,6 +114,8 @@ const BookListContainer = (props, onData) => {
   if(Meteor.subscribe("books").ready())
     onData(null, {
       books: Books.find({}, {sort: {"original.name": 1}}).fetch(),
+      canUpload: hasPermission("modify"),
+      canRemove: hasPermission("modify"),
       remove: (id) => (() => Books.remove(id))
     })
 }
@@ -184,7 +188,7 @@ const UploadContainer = (props, onData) => {
 
 export const Upload = composeWithTracker(UploadContainer)(UploadUI)
 
-const BookDisplayUI = ({id, title}) => <div>
+const BookDisplayUI = ({id, title, canDownload}) => <div>
   <Helmet title={title}/>
   <Navbar>
     <Navbar.Header>
@@ -193,7 +197,7 @@ const BookDisplayUI = ({id, title}) => <div>
     </Navbar.Header>
     <Navbar.Collapse>
       <Nav>
-        <NavItem href={`/files/${id}`}>Download</NavItem>
+        { canDownload ? <NavItem href={`/files/${id}`}>Download</NavItem> : null }
       </Nav>
     </Navbar.Collapse>
   </Navbar>
@@ -204,10 +208,11 @@ const BookDisplayContainer = (props, onData) => {
   if(Meteor.subscribe("books").ready()) {
     const id = props.params.id
     const book = Books.findOne(id)
+    const canDownload = hasPermission("download")
     let ttl = title(book)
     if(!ttl)
       ttl = "Loading..."
-    onData(null, {id, title: ttl})
+    onData(null, {id, title: ttl, canDownload})
   }
 }
 

@@ -6,6 +6,7 @@ import {composeWithTracker} from "react-komposer"
 import {IndexRoute, Router, Route, browserHistory} from "react-router"
 
 import {BookDisplay, BookList, Books, Upload} from "./alexandria.jsx"
+import {hasPermission} from "./sandstorm"
 
 const Layout = (props) => <div>
   <Helmet titleTemplate="%s - Alexandria"/>
@@ -25,7 +26,8 @@ const HomeUI = (props) => <BookList {...props}/>
 const HomeContainer = (props, onData) => {
   if(Meteor.subscribe("books").ready()) {
     const hasBooks = Books.find().count() != 0
-    if(hasBooks)
+    const canUpload = hasPermission("modify")
+    if(hasBooks || !canUpload)
       onData(null, {})
     else
       browserHistory.push("/new")

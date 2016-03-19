@@ -168,59 +168,75 @@ const pkgdef :Spk.PackageDefinition = (
   #  # https://docs.sandstorm.io/en/latest/developing/auth/
   #  # and advanced details in the "BridgeConfig" section of
   #  # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/package.capnp
-  #  viewInfo = (
-  #    # For details on the viewInfo field, consult "ViewInfo" in
-  #    # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/grain.capnp
-  #
-  #    permissions = [
-  #    # Permissions which a user may or may not possess.  A user's current
-  #    # permissions are passed to the app as a comma-separated list of `name`
-  #    # fields in the X-Sandstorm-Permissions header with each request.
-  #    #
-  #    # IMPORTANT: only ever append to this list!  Reordering or removing fields
-  #    # will change behavior and permissions for existing grains!  To deprecate a
-  #    # permission, or for more information, see "PermissionDef" in
-  #    # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/grain.capnp
-  #      (
-  #        name = "editor",
-  #        # Name of the permission, used as an identifier for the permission in cases where string
-  #        # names are preferred.  Used in sandstorm-http-bridge's X-Sandstorm-Permissions HTTP header.
-  #
-  #        title = (defaultText = "editor"),
-  #        # Display name of the permission, e.g. to display in a checklist of permissions
-  #        # that may be assigned when sharing.
-  #
-  #        description = (defaultText = "grants ability to modify data"),
-  #        # Prose describing what this role means, suitable for a tool tip or similar help text.
-  #      ),
-  #    ],
-  #    roles = [
-  #      # Roles are logical collections of permissions.  For instance, your app may have
-  #      # a "viewer" role and an "editor" role
-  #      (
-  #        title = (defaultText = "editor"),
-  #        # Name of the role.  Shown in the Sandstorm UI to indicate which users have which roles.
-  #
-  #        permissions  = [true],
-  #        # An array indicating which permissions this role carries.
-  #        # It should be the same length as the permissions array in
-  #        # viewInfo, and the order of the lists must match.
-  #
-  #        verbPhrase = (defaultText = "can make changes to the document"),
-  #        # Brief explanatory text to show in the sharing UI indicating
-  #        # what a user assigned this role will be able to do with the grain.
-  #
-  #        description = (defaultText = "editors may view all site data and change settings."),
-  #        # Prose describing what this role means, suitable for a tool tip or similar help text.
-  #      ),
-  #      (
-  #        title = (defaultText = "viewer"),
-  #        permissions  = [false],
-  #        verbPhrase = (defaultText = "can view the document"),
-  #        description = (defaultText = "viewers may view what other users have written."),
-  #      ),
-  #    ],
-  #  ),
+  viewInfo = (
+    # For details on the viewInfo field, consult "ViewInfo" in
+    # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/grain.capnp
+
+    permissions = [
+    # Permissions which a user may or may not possess.  A user's current
+    # permissions are passed to the app as a comma-separated list of `name`
+    # fields in the X-Sandstorm-Permissions header with each request.
+    #
+    # IMPORTANT: only ever append to this list!  Reordering or removing fields
+    # will change behavior and permissions for existing grains!  To deprecate a
+    # permission, or for more information, see "PermissionDef" in
+    # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/grain.capnp
+      (
+        name = "download",
+        # Name of the permission, used as an identifier for the permission in cases where string
+        # names are preferred.  Used in sandstorm-http-bridge's X-Sandstorm-Permissions HTTP header.
+
+        title = (defaultText = "download"),
+        # Display name of the permission, e.g. to display in a checklist of permissions
+        # that may be assigned when sharing.
+
+        description = (defaultText = "can download original books"),
+        # Prose describing what this role means, suitable for a tool tip or similar help text.
+      ),
+
+      (
+        name = "modify",
+        title = (defaultText = "modify"),
+        description = (defaultText = "can upload and remove books"),
+      ),
+    ],
+
+    roles = [
+      # Roles are logical collections of permissions.  For instance, your app may have
+      # a "viewer" role and an "editor" role
+      (
+        title = (defaultText = "librarian"),
+        # Name of the role.  Shown in the Sandstorm UI to indicate which users have which roles.
+
+        permissions  = [true, true],
+        # An array indicating which permissions this role carries.
+        # It should be the same length as the permissions array in
+        # viewInfo, and the order of the lists must match.
+
+        verbPhrase = (defaultText = "can add and remove books"),
+        # Brief explanatory text to show in the sharing UI indicating
+        # what a user assigned this role will be able to do with the grain.
+
+        description = (defaultText = "Librarians can upload and remove books, as well as download originals."),
+        # Prose describing what this role means, suitable for a tool tip or similar help text.
+      ),
+
+      (
+        title = (defaultText = "downloader"),
+        permissions  = [true, false],
+        verbPhrase = (defaultText = "can read books and download originals"),
+        description = (defaultText = "Downloaders can both read books and download originals."),
+      ),
+
+      (
+        title = (defaultText = "reader"),
+        permissions  = [false, false],
+        verbPhrase = (defaultText = "can read books"),
+        description = (defaultText = "Readers may only view stored book content."),
+      ),
+    ],
+  ),
+
   #  #apiPath = "/api",
   #  # Apps can export an API to the world.  The API is to be used primarily by Javascript
   #  # code and native apps, so it can't serve out regular HTML to browsers.  If a request

@@ -4,14 +4,29 @@ mime = require("mime")
 Books = require("/lib/alexandria.jsx").Books
 
 Books.allow
-  insert: -> true
-  update: -> true
-  remove: -> true
+  insert: ->
+    if @connection?.sandstormUser()?.permissions.indexOf("modify") != -1
+      true
+    else
+      false
+  update: ->
+    if @connection?.sandstormUser()?.permissions.indexOf("modify") != -1
+      true
+    else
+      false
+  remove: ->
+    if @connection?.sandstormUser()?.permissions.indexOf("modify") != -1
+      true
+    else
+      false
 
 Meteor.publish "books", ->
   Books.find({}, {fields: {"original.name": 1, metadata: 1}})
 
 Picker.route "/files/:id", (params, req, res) ->
+  if @connection?.sandstormUser()?.permissions?.indexOf("download") == -1
+    res.statusCode = 403
+    return res.end()
   book = Books.findOne(params.id)
   if book?
     while !book.hasStored("upload")
