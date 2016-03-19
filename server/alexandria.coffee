@@ -11,6 +11,19 @@ Books.allow
 Meteor.publish "books", ->
   Books.find({}, {fields: {"original.name": 1, metadata: 1}})
 
+Picker.route "/files/:id", (params, req, res) ->
+  book = Books.findOne(params.id)
+  if book?
+    while !book.hasStored("upload")
+      continue
+    stream = book.createReadStream("upload")
+    res.setHeader("Content-Type", mime.lookup(book.original.name))
+    res.setHeader("Content-Disposition", "inline; filename="+encodeURI(book.original.name))
+    stream.pipe(res)
+  else
+    res.statusCode = 404
+    res.end()
+
 Picker.route "/files/:id/:filename+", (params, req, res) ->
   book = Books.findOne(params.id)
   if book?

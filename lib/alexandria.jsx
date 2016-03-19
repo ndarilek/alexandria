@@ -48,7 +48,7 @@ const htmlz = new FS.Store.GridFS("htmlz", {
           if(err)
             console.error(`Error: ${err}`)
           else
-            fileObj.update({metadata: result.package.metadata, formatVersion: 0})
+            fileObj.update({$set: {metadata: result.package.metadata, formatVersion: 0}})
           if(fs.existsSync(htmlzName))
             fs.unlinkSync(htmlzName)
         })
@@ -189,7 +189,13 @@ const BookDisplayUI = ({id, title}) => <div>
   <Navbar>
     <Navbar.Header>
       <Navbar.Brand><Link to="/">Alexandria</Link></Navbar.Brand>
+      <Navbar.Toggle/>
     </Navbar.Header>
+    <Navbar.Collapse>
+      <Nav>
+        <NavItem href={`/files/${id}`}>Download</NavItem>
+      </Nav>
+    </Navbar.Collapse>
   </Navbar>
   <iframe src={`/files/${id}/index.html`}/>
 </div>
