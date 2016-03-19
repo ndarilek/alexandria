@@ -13,7 +13,7 @@ twbs:bootstrap
 cfs:standard-packages
 cfs:gridfs
 modules
-cfs:http-methods
 coffeescript
 standard-minifier-css
 standard-minifier-js
+meteorhacks:picker
