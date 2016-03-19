@@ -1,10 +1,11 @@
 import forms from "newforms"
 import BootstrapForm from "newforms-bootstrap"
 import React from "react"
-import {Button, ButtonToolbar} from "react-bootstrap"
+import {Button, Nav, Navbar, NavItem} from "react-bootstrap"
 import Helmet from "react-helmet"
 import {composeWithTracker} from "react-komposer"
 import {Link, browserHistory} from "react-router"
+import {LinkContainer} from "react-router-bootstrap"
 import toastr from "toastr"
 
 if(Meteor.isServer) {
@@ -29,7 +30,7 @@ const htmlz = new FS.Store.GridFS("htmlz", {
     readStream.pipe(upload)
     const baseName = upload.path
     const htmlzName = baseName+".htmlz"
-    exec(`/usr/bin/ebook-convert "${baseName}" "${htmlzName}"`, Meteor.bindEnvironment((err, stdout, stderr) => {
+    exec(`ebook-convert "${baseName}" "${htmlzName}"`, Meteor.bindEnvironment((err, stdout, stderr) => {
       if(stdout)
         console.log(`${stdout}`)
       if(stderr)
@@ -74,8 +75,18 @@ const author = (book) => {
 
 export const BookListUI = ({books, remove}) => <div>
   <Helmet title="Books"/>
+  <Navbar>
+    <Navbar.Header>
+      <Navbar.Brand>Alexandria</Navbar.Brand>
+      <Navbar.Toggle/>
+    </Navbar.Header>
+    <Navbar.Collapse>
+      <Nav>
+        <LinkContainer to="/new"><NavItem>Upload</NavItem></LinkContainer>
+      </Nav>
+    </Navbar.Collapse>
+  </Navbar>
   <h1>Books</h1>
-  <Link to="/new">New</Link>
   <table>
     <thead>
       <tr>
@@ -140,7 +151,11 @@ const UploadUI = React.createClass({
     else
       return <div>
         <Helmet title="Upload Book"/>
-        <Link to="/">Home</Link>
+        <Navbar>
+          <Navbar.Header>
+            <Navbar.Brand><Link to="/">Alexandria</Link></Navbar.Brand>
+          </Navbar.Header>
+        </Navbar>
         <h1>Upload Book</h1>
         <form onSubmit={this.onSubmit}>
           <forms.RenderForm ref="form" form={this.form}>
@@ -171,9 +186,11 @@ export const Upload = composeWithTracker(UploadContainer)(UploadUI)
 
 const BookDisplayUI = ({id, title}) => <div>
   <Helmet title={title}/>
-  <ButtonToolbar>
-    <Link to="/">Home</Link>
-  </ButtonToolbar>
+  <Navbar>
+    <Navbar.Header>
+      <Navbar.Brand><Link to="/">Alexandria</Link></Navbar.Brand>
+    </Navbar.Header>
+  </Navbar>
   <iframe src={`/files/${id}/index.html`}/>
 </div>
 
