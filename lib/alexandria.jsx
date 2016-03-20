@@ -121,7 +121,7 @@ export const BookListUI = ({books, canUpload, canRemove, remove}) => <div>
 const BookListContainer = (props, onData) => {
   if(Meteor.subscribe("books").ready())
     onData(null, {
-      books: Books.find({}, {sort: {"original.name": 1}}).fetch(),
+      books: Books.find({}, {sort: {"metadata.user.title": 1, "metadata.original.dc:title": 1, "original.name": 1}}).fetch(),
       canUpload: hasPermission("modify"),
       canRemove: hasPermission("modify"),
       remove: (id) => (() => Books.remove(id))
