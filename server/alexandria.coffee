@@ -5,20 +5,14 @@ Books = require("/lib/alexandria.jsx").Books
 
 Books.allow
   insert: ->
-    if @connection?.sandstormUser()?.permissions.indexOf("modify") != -1
-      true
-    else
-      false
+    connection = DDP._CurrentInvocation.get().connection
+    connection.sandstormUser().permissions.indexOf("modify") != -1
   update: ->
-    if @connection?.sandstormUser()?.permissions.indexOf("modify") != -1
-      true
-    else
-      false
+    connection = DDP._CurrentInvocation.get().connection
+    connection.sandstormUser().permissions.indexOf("modify") != -1
   remove: ->
-    if @connection?.sandstormUser()?.permissions.indexOf("modify") != -1
-      true
-    else
-      false
+    connection = DDP._CurrentInvocation.get().connection
+    connection.sandstormUser().permissions.indexOf("modify") != -1
 
 Meteor.publish "books", ->
   Books.find({}, {fields: {"original.name": 1, metadata: 1}})
