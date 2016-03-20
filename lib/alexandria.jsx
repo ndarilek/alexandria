@@ -143,22 +143,12 @@ const UploadUI = React.createClass({
       this.props.onSubmit(form.cleanedData)
   },
 
-  componentDidUpdate(prevProps) {
-    if(!prevProps.file && this.props.file) {
-      const file = this.props.file
-      const self = this
-      file.on("progress", () => {
-        console.log("Progress!")
-      })
-      file.on("uploaded", () => browserHistory.push(`/books/${file._id}`))
-    }
-  },
-
   render() {
-    if(this.props.file)
+    if(this.props.uploadProgress != null)
       return <div>
         <Helmet title="Uploading"/>
         <h1>Uploading...</h1>
+        <progress value={this.props.uploadProgress/100}/>
       </div>
     else
       return <div>
@@ -180,6 +170,8 @@ const UploadUI = React.createClass({
 
 })
 
+let updateUploadProgress = null
+
 const UploadContainer = (props, onData) => {
   onData(null, {
     onSubmit: (args) => {
@@ -188,10 +180,18 @@ const UploadContainer = (props, onData) => {
           console.log(err)
           toastr.error(err)
         } else
-          onData(null, {file: fileObj})
+          fileObj.on("uploaded", () => browserHistory.push(`/books/${fileObj._id}`))
+          onData(null, {uploadProgress: fileObj.uploadProgress()})
+          updateUploadProgress = setInterval(() => onData(null, {uploadProgress: fileObj.uploadProgress()}), 1000)
       })
     }
   })
+  return () => {
+    if(updateUploadProgress) {
+      clearInterval(updateUploadProgress)
+      updateUploadProgress = null
+    }
+  }
 }
 
 export const Upload = composeWithTracker(UploadContainer)(UploadUI)
