@@ -38,6 +38,12 @@ const Home = composeWithTracker(HomeContainer)(HomeUI)
 
 if(Meteor.isClient)
   Meteor.startup(() => {
+    browserHistory.listen((location) => {
+      window.parent.postMessage({
+        setPath: location.pathname + location.hash
+      }, '*')
+    });
+
     ReactDOM.render(<Router history={browserHistory}>
       <Route path="/" component={Layout}>
         <IndexRoute component={Home}/>
