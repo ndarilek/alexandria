@@ -53,13 +53,17 @@ Picker.route "/files/:id/:filename+", (params, req, res) ->
     stream.on "end", ->
       zip = new JSZip(buffer)
       file = zip.file(filename)
-      contentType = mime.lookup(file.name)
-      data = if contentType.startsWith("text")
-        file.asText()
+      if file?
+        contentType = mime.lookup(file.name)
+        data = if contentType.startsWith("text")
+          file.asText()
+        else
+          file.asBinary()
+        res.setHeader("Content-Type", contentType)
+        res.end(data)
       else
-        file.asBinary()
-      res.setHeader("Content-Type", contentType)
-      res.end(data)
+        res.statusCode = 404
+        res.end()
   else
     res.statusCode = 404
     res.end()
