@@ -210,7 +210,7 @@ const BookDisplayUI = ({id, title, canDownload, canEditMetadata}) => <div>
       </Nav>
     </Navbar.Collapse>
   </Navbar>
-  <iframe src={`/files/${id}/index.html`}/>
+  <iframe id="book-display" src={`/files/${id}/index.html`}/>
 </div>
 
 const BookDisplayContainer = (props, onData) => {
