@@ -1,0 +1,9 @@
+#book-display {
+  display: block;
+  margin: 0 auto;
+
+  width: 100%;
+  max-width: 60em;
+  height: calc(100vh - 80px);
+  border: 0;
+}
