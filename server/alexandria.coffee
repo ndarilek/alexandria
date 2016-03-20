@@ -3,16 +3,14 @@ mime = require("mime")
 
 Books = require("/lib/alexandria.jsx").Books
 
+# TODO: Fix me
 Books.allow
   insert: ->
-    connection = DDP._CurrentInvocation.get().connection
-    connection.sandstormUser().permissions.indexOf("modify") != -1
+    @connection?.sandstormUser()?.permissions?.indexOf("modify") != -1
   update: ->
-    connection = DDP._CurrentInvocation.get().connection
-    connection.sandstormUser().permissions.indexOf("modify") != -1
+    @connection?.sandstormUser()?.permissions?.indexOf("modify") != -1
   remove: ->
-    connection = DDP._CurrentInvocation.get().connection
-    connection.sandstormUser().permissions.indexOf("modify") != -1
+    @connection?.sandstormUser()?.permissions?.indexOf("modify") != -1
 
 Meteor.publish "books", ->
   Books.find({}, {fields: {"original.name": 1, metadata: 1}})
