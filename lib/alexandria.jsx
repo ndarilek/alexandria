@@ -50,7 +50,7 @@ const htmlz = new FS.Store.GridFS("htmlz", {
           if(err)
             console.error(`Error: ${err}`)
           else
-            fileObj.update({$set: {metadata: result.package.metadata, formatVersion: 0}})
+            fileObj.update({$set: {"metadata.original": result.package.metadata, formatVersion: 0}})
           if(fs.existsSync(htmlzName))
             fs.unlinkSync(htmlzName)
         })
@@ -64,15 +64,23 @@ Books = new FS.Collection("books", {stores: [upload, htmlz]})
 export {Books}
 
 const title = (book) => {
-  if(book.metadata && book.metadata["dc:title"])
-    return book.metadata["dc:title"]
+  if(book.metadata)
+    if(book.metadata.user && book.metadata.user.title)
+      return book.metadata.user.title
+    else if(book.metadata.original && book.metadata.original["dc:title"])
+      return book.metadata.original["dc:title"]
+    else
+      return book.name()
   else
     return book.name()
 }
 
 const author = (book) => {
-  if(book.metadata && book.metadata["dc:creator"] && book.metadata["dc:creator"].char)
-    return book.metadata["dc:creator"].char
+  if(book.metadata)
+    if(book.metadata.user && book.metadata.user.author)
+      return book.metadata.user.author
+    else if(book.metadata.original && book.metadata.original["dc:creator"] && book.metadata.original["dc:creator"].char)
+      return book.metadata.original["dc:creator"].char
 }
 
 export const BookListUI = ({books, canUpload, canRemove, remove}) => <div>
@@ -188,7 +196,7 @@ const UploadContainer = (props, onData) => {
 
 export const Upload = composeWithTracker(UploadContainer)(UploadUI)
 
-const BookDisplayUI = ({id, title, canDownload}) => <div>
+const BookDisplayUI = ({id, title, canDownload, canEditMetadata}) => <div>
   <Helmet title={title}/>
   <Navbar>
     <Navbar.Header>
@@ -198,6 +206,7 @@ const BookDisplayUI = ({id, title, canDownload}) => <div>
     <Navbar.Collapse>
       <Nav>
         { canDownload ? <NavItem href={`/files/${id}`}>Download</NavItem> : null }
+        { canEditMetadata ? <LinkContainer to={`/books/${id}/edit`}><NavItem>Edit Metadata</NavItem></LinkContainer> : null }
       </Nav>
     </Navbar.Collapse>
   </Navbar>
@@ -209,11 +218,59 @@ const BookDisplayContainer = (props, onData) => {
     const id = props.params.id
     const book = Books.findOne(id)
     const canDownload = hasPermission("download")
+    const canEditMetadata = hasPermission("modify")
     let ttl = title(book)
     if(!ttl)
       ttl = "Loading..."
-    onData(null, {id, title: ttl, canDownload})
+    onData(null, {id, title: ttl, canDownload, canEditMetadata})
   }
 }
 
 export const BookDisplay = composeWithTracker(BookDisplayContainer)(BookDisplayUI)
+
+const BookEditUI = React.createClass({
+
+  form: forms.Form.extend({
+    title: forms.CharField({required: false, widgetAttrs: {autoFocus: true}}),
+    author: forms.CharField({required: false})
+  }),
+
+  onSubmit(e) {
+    e.preventDefault()
+    const form = this.refs.form.getForm()
+    if(form.validate())
+      this.props.onSubmit(form.cleanedData)
+      .then(() => browserHistory.push(`/books/${this.props.id}`))
+  },
+
+  render() {
+    const f = new this.form({initial: {title: this.props.title, author: this.props.author}})
+    return <div>
+      <Helmet title="Edit Metadata"/>
+      <h1>Edit Metadata</h1>
+      <form onSubmit={this.onSubmit}>
+        <forms.RenderForm ref="form" form={f}>
+          <BootstrapForm/>
+        </forms.RenderForm>
+        <Button type="submit">Save</Button>
+        <Button onClick={() => browserHistory.push(`/books/${this.props.id}`)}>Cancel</Button>
+      </form>
+    </div>
+  }
+
+})
+
+const BookEditContainer = (props, onData) => {
+  if(Meteor.subscribe("books").ready()) {
+    const id = props.params.id
+    const book = Books.findOne(id)
+    onData(null, {
+      id,
+      title: title(book),
+      author: author(book),
+      onSubmit: (args) => Meteor.promise("books.editMetadata", id, args)
+    })
+  }
+}
+
+export const BookEdit = composeWithTracker(BookEditContainer)(BookEditUI)

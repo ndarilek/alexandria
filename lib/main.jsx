@@ -5,7 +5,7 @@ import Helmet from "react-helmet"
 import {composeWithTracker} from "react-komposer"
 import {IndexRoute, Router, Route, browserHistory} from "react-router"
 
-import {BookDisplay, BookList, Books, Upload} from "./alexandria.jsx"
+import {BookDisplay, BookEdit, BookList, Books, Upload} from "./alexandria.jsx"
 import {hasPermission} from "./sandstorm"
 
 const Layout = (props) => <div>
@@ -42,6 +42,7 @@ if(Meteor.isClient)
       <Route path="/" component={Layout}>
         <IndexRoute component={Home}/>
         <Route path="books/:id" component={BookDisplay}/>
+        <Route path="books/:id/edit" component={BookEdit}/>
         <route path="new" component={Upload}/>
       </Route>
     </Router>, document.body)

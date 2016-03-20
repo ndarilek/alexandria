@@ -159,7 +159,7 @@ const pkgdef :Spk.PackageDefinition = (
   # the app opens while running in dev mode. To see what that looks like,
   # run `spk init` without the -A option.)
 
-  #bridgeConfig = (
+  bridgeConfig = (
   #  # Used for integrating permissions and roles into the Sandstorm shell
   #  # and for sandstorm-http-bridge to pass to your app.
   #  # Uncomment this block and adjust the permissions and roles to make
@@ -242,7 +242,7 @@ const pkgdef :Spk.PackageDefinition = (
   #  # code and native apps, so it can't serve out regular HTML to browsers.  If a request
   #  # comes in to your app's API, sandstorm-http-bridge will prefix the request's path with
   #  # this string, if specified.
-  #),
+  ),
 );
 
 const myCommand :Spk.Manifest.Command = (

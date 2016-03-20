@@ -63,3 +63,18 @@ Picker.route "/files/:id/:filename+", (params, req, res) ->
   else
     res.statusCode = 404
     res.end()
+
+Meteor.methods
+  "books.editMetadata": (id, args) ->
+    check id, String
+    check args,
+      title: Match.Optional(String)
+      author: Match.Optional(String)
+    if @connection?.sandstormUser()?.permissions?.indexOf("modify") != -1
+      book = Books.findOne(id)
+      if book?
+        Books.update(id, {$set: {"metadata.user": args}})
+      else
+        throw new Meteor.Error(404, "Not found")
+    else
+      throw new Meteor.Error(403, "Unauthorized")

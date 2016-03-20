@@ -18,3 +18,5 @@ standard-minifier-css
 standard-minifier-js
 meteorhacks:picker
 kenton:accounts-sandstorm
+okgrow:promise
+check

@@ -61,6 +61,7 @@ mongo-id@1.0.2-rc.3
 mongo-livedata@1.0.10-rc.3
 npm-mongo@1.4.41-rc.3
 observe-sequence@1.0.9-rc.3
+okgrow:promise@0.9.5
 ordered-dict@1.0.5-rc.3
 promise@0.6.4-rc.3
 raix:eventemitter@0.1.3
