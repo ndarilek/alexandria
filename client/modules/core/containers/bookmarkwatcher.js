@@ -12,14 +12,18 @@ const composer = ({actions, context, id}, onData) => {
   if(Meteor.subscribe("bookmarks", id).ready()) {
     Tracker.autorun(() => {
       const bookmark = State.get("selectedBookmark")
-      console.log("Bookmark", bookmark)
+      console.log("Bookmark", bookmark.data.rangeBookmarks[0])
       if(bookmark && bookmark.sessionId != Meteor.connection._lastSessionId) {
         const selection = Rangy.getSelection(document.getElementById("book-display"))
         const data = bookmark.data
-        const container = document.getElementById("book-display")
+        let container = document.getElementById("book-display")
+        if(container)
+          container = (container.contentDocument || container.contentWindow.document)
+        if(container)
+          container = container.body
         if(container && data.rangeBookmarks.length) {
-          data.rangeBookmarks[0].containerNode = (container.contentDocument || container.contentWindow.document)
-          data.rangeBookmarks[0].containerNode = data.rangeBookmarks[0].containerNode.body
+          data.rangeBookmarks[0].containerNode = container
+          //console.log("containerNode", data.rangeBookmarks[0].containerNode)
           console.log("Updating position", data.rangeBookmarks[0])
           selection.moveToBookmark(data)
         }
@@ -32,8 +36,9 @@ const composer = ({actions, context, id}, onData) => {
         const bookmark = selection.getBookmark()
         const selectedBookmark = State.get("selectedBookmark")
         if(bookmark.rangeBookmarks.length && selectedBookmark && bookmark.rangeBookmarks[0].start != selectedBookmark.data.rangeBookmarks[0].start) {
-          console.log("Updating bookmark", selectedBookmark.data.rangeBookmarks[0], bookmark.rangeBookmarks[0])
+          console.log("Updating bookmark", bookmark)
           const id = selectedBookmark._id
+          delete bookmark.rangeBookmarks[0].containerNode
           bookmarks.update(id, bookmark)
           .then(() => State.set("selectedBookmark", Bookmarks.findOne(id)))
         }
