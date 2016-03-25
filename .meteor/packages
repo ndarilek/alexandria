@@ -10,8 +10,6 @@ tracker
 es5-shim
 ecmascript
 twbs:bootstrap
-cfs:standard-packages
-cfs:gridfs
 modules
 coffeescript
 standard-minifier-css
@@ -20,3 +18,4 @@ meteorhacks:picker
 kenton:accounts-sandstorm
 okgrow:promise
 check
+vsivsi:file-collection
