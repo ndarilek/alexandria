@@ -40,8 +40,8 @@ Picker.route "/files/:id", (params, req, res) ->
     return res.end()
   book = Books.findOne(params.id)
   if book?
-    upload = Uploads.findOne(new Mongo.ObjectID(book.files?.uploadId?))
-    stream = Uploads.findOneStream(book.files?.uploadId?)
+    upload = Uploads.findOne(new Mongo.ObjectID(book.files?.uploadId))
+    stream = Uploads.findOneStream(new Mongo.ObjectID(book.files?.uploadId))
     res.setHeader("Content-Type", mime.lookup(upload.filename))
     res.setHeader("Content-Disposition", "inline; filename="+encodeURI(upload.filename))
     stream.pipe(res)
