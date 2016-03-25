@@ -7,7 +7,7 @@ import BookmarksMenu from "../components/bookmarksmenu"
 let selectionWatcher = null
 
 const composer = ({context, id}, onData) => {
-  const {Meteor} = context()
+  const {Meteor, State} = context()
   if(Meteor.subscribe("bookmarks", id).ready()) {
     const data = {}
     data.shouldDisplayBookmarks = Meteor.userId() != null
@@ -15,22 +15,22 @@ const composer = ({context, id}, onData) => {
       Meteor.promise("bookmarks.create", id)
     data.selectedBookmark = new ReactiveVar(Bookmarks.findOne({bookId: id, name: ""}))
     data.bookmarks = Bookmarks.find({bookId: id}).fetch()
-    data.shouldDisplayBookmarkRemove = false
+    State.set("shouldDisplayBookmarkRemove", false)
     data.showNewBookmarkUI = false
     data.newBookmark = (args) => Meteor.promise("bookmarks.create", args)
     data.closeNewBookmarkUI = () => onData(null, data)
     data.bookmarkSelected = (bookmarkId) => {
       if(bookmarkId == "new") {
-        data.shouldDisplayBookmarkRemove = false
+        State.set("shouldDisplayBookmarkRemove", false)
         data.showNewBookmarkUI = true
       } else {
         data.showNewBookmarkUI = false
         data.selectedBookmark.set(Bookmarks.findOne(bookmarkId))
         if(data.selectedBookmark.get())
           if(data.selectedBookmark.get().name)
-            data.shouldDisplayBookmarkRemove = true
+            State.set("shouldDisplayBookmarkRemove", true)
           else
-            data.shouldDisplayBookmarkRemove = false
+            State.set("shouldDisplayBookmarkRemove", false)
       }
       onData(null, data)
     }
