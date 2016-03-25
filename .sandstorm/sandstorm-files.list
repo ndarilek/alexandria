@@ -1234,6 +1234,8 @@ home/vagrant/bundle/programs/server/npm/node_modules/pako/lib/zlib/zstream.js
 home/vagrant/bundle/programs/server/npm/node_modules/pako/package.json
 home/vagrant/bundle/programs/server/npm/node_modules/query-string/index.js
 home/vagrant/bundle/programs/server/npm/node_modules/query-string/package.json
+home/vagrant/bundle/programs/server/npm/node_modules/rangy/lib/rangy-core.js
+home/vagrant/bundle/programs/server/npm/node_modules/rangy/package.json
 home/vagrant/bundle/programs/server/npm/node_modules/react-bootstrap/lib/Accordion.js
 home/vagrant/bundle/programs/server/npm/node_modules/react-bootstrap/lib/Alert.js
 home/vagrant/bundle/programs/server/npm/node_modules/react-bootstrap/lib/Badge.js
@@ -1724,6 +1726,8 @@ home/vagrant/bundle/programs/server/npm/node_modules/xmlbuilder/lib/XMLProcessin
 home/vagrant/bundle/programs/server/npm/node_modules/xmlbuilder/lib/XMLStringifier.js
 home/vagrant/bundle/programs/server/npm/node_modules/xmlbuilder/lib/index.js
 home/vagrant/bundle/programs/server/npm/node_modules/xmlbuilder/package.json
+home/vagrant/bundle/programs/server/packages/accounts-base.js
+home/vagrant/bundle/programs/server/packages/accounts-base.js.map
 home/vagrant/bundle/programs/server/packages/allow-deny.js
 home/vagrant/bundle/programs/server/packages/allow-deny.js.map
 home/vagrant/bundle/programs/server/packages/autoupdate.js
@@ -1739,6 +1743,7 @@ home/vagrant/bundle/programs/server/packages/check.js
 home/vagrant/bundle/programs/server/packages/coffeescript.js
 home/vagrant/bundle/programs/server/packages/ddp-client.js
 home/vagrant/bundle/programs/server/packages/ddp-common.js
+home/vagrant/bundle/programs/server/packages/ddp-rate-limiter.js
 home/vagrant/bundle/programs/server/packages/ddp-server.js
 home/vagrant/bundle/programs/server/packages/ddp-server.js.map
 home/vagrant/bundle/programs/server/packages/ddp.js
@@ -1777,10 +1782,12 @@ home/vagrant/bundle/programs/server/packages/ordered-dict.js
 home/vagrant/bundle/programs/server/packages/promise.js
 home/vagrant/bundle/programs/server/packages/random.js
 home/vagrant/bundle/programs/server/packages/random.js.map
+home/vagrant/bundle/programs/server/packages/rate-limit.js
 home/vagrant/bundle/programs/server/packages/reactive-var.js
 home/vagrant/bundle/programs/server/packages/reload.js
 home/vagrant/bundle/programs/server/packages/retry.js
 home/vagrant/bundle/programs/server/packages/routepolicy.js
+home/vagrant/bundle/programs/server/packages/service-configuration.js
 home/vagrant/bundle/programs/server/packages/spacebars-compiler.js
 home/vagrant/bundle/programs/server/packages/spacebars.js
 home/vagrant/bundle/programs/server/packages/standard-minifier-css.js
@@ -1799,7 +1806,7 @@ home/vagrant/bundle/programs/server/packages/webapp.js.map
 home/vagrant/bundle/programs/server/program.json
 home/vagrant/bundle/programs/server/server-json.js
 home/vagrant/bundle/programs/web.browser/2c34d5c58120e17fa257ebe1d9cac03ef846acbb.css
-home/vagrant/bundle/programs/web.browser/75909f29d47d686c36ba60c5cc793b6fb6630caa.js
+home/vagrant/bundle/programs/web.browser/4874ae6e50a828ffc5de6d7311a9213de65cf9ec.js
 home/vagrant/bundle/programs/web.browser/program.json
 lib/x86_64-linux-gnu/ld-2.19.so
 lib/x86_64-linux-gnu/libbz2.so.1.0

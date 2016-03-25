@@ -1,7 +1,8 @@
 import forms from "newforms"
 import BootstrapForm from "newforms-bootstrap"
+import Rangy from "rangy"
 import React from "react"
-import {Button, Nav, Navbar, NavItem} from "react-bootstrap"
+import {Button, MenuItem, Modal, Nav, NavDropdown, NavItem, Navbar,} from "react-bootstrap"
 import Helmet from "react-helmet"
 import {composeWithTracker} from "react-komposer"
 import {Link, browserHistory} from "react-router"
@@ -17,6 +18,8 @@ export {Books}
 Uploads = new FileCollection("uploads", {resumable: true})
 
 export {Uploads}
+
+export const Bookmarks = new Mongo.Collection("bookmarks")
 
 const title = (book) => {
   if(book.metadata)
@@ -45,7 +48,7 @@ export const BookListUI = ({books, canUpload, canRemove, remove}) => <div>
       <Navbar.Brand>Alexandria</Navbar.Brand>
       { canUpload ? <Navbar.Toggle/> : null }
     </Navbar.Header>
-{ canUpload ?     <Navbar.Collapse>
+    { canUpload ?     <Navbar.Collapse>
       <Nav>
         <LinkContainer to="/new"><NavItem>Upload</NavItem></LinkContainer>
       </Nav>
@@ -79,7 +82,10 @@ const BookListContainer = (props, onData) => {
       books: Books.find({}, {sort: {"metadata.user.title": 1, "metadata.original.dc:title": 1, "files.uploadFilename": 1}}).fetch(),
       canUpload: hasPermission("modify"),
       canRemove: hasPermission("modify"),
-      remove: (id) => (() => Books.remove(id))
+      remove: (id) => (() => {
+        Books.remove(id)
+        Meteor.call("bookmarks.removeForBook", id)
+      })
     })
 }
 
@@ -145,6 +151,117 @@ const UploadContainer = (props, onData) => {
 
 export const Upload = composeWithTracker(UploadContainer)(UploadUI)
 
+const NewBookmarkUI = React.createClass({
+
+  form: forms.Form.extend({
+    name: forms.CharField({widgetAttrs: {autoFocus: true}})
+  }),
+
+  onSubmit(e) {
+    e.preventDefault()
+    const form = this.refs.form.getForm()
+    if(form.validate())
+      this.props.onSubmit(form.cleanedData)
+      .then(() => this.props.close())
+  },
+
+  render() {
+    return <Modal show={this.props.show}>
+      <Modal.Header closeButton>
+        <Modal.Title>New Bookmark</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <form onSubmit={this.onSubmit}>
+          <forms.RenderForm ref="form" form={this.form}>
+            <BootstrapForm/>
+          </forms.RenderForm>
+          <Button type="submit">Create</Button>
+          <Button onClick={this.props.close}>Cancel</Button>
+        </form>
+      </Modal.Body>
+    </Modal>
+  }
+
+})
+
+const BookmarksMenuUI = ({shouldDisplayBookmarks, shouldDisplayBookmarkRemove, bookmarkSelected, bookmarks}) => <span>
+  { shouldDisplayBookmarks ? <NavDropdown id="bookmarks" title="Bookmarks">
+    { bookmarks.map((b) => <MenuItem eventKey={b._id} onSelect={bookmarkSelected}>{ b.name ? <span>{b.name}</span> : <span>Default</span> }</MenuItem>) }
+    <MenuItem divider/>
+    <MenuItem eventKey="new" onSelect={bookmarkSelected}>New...</MenuItem>
+  </NavDropdown>: null }
+  { shouldDisplayBookmarkRemove ? <Button>Remove Bookmark</Button> : null }
+</span>
+
+let selectionWatcher = null
+
+const BookmarksMenuContainer = ({id}, onData) => {
+  if(Meteor.subscribe("bookmarks", id).ready()) {
+    const data = {}
+    data.shouldDisplayBookmarks = Meteor.userId() != null
+    if(data.shouldDisplayBookmarks && !Bookmarks.findOne({bookId: id, name: ""}))
+      Meteor.promise("bookmarks.create", id)
+    data.selectedBookmark = new ReactiveVar(Bookmarks.findOne({bookId: id, name: ""}))
+    data.bookmarks = Bookmarks.find({bookId: id}).fetch()
+    data.shouldDisplayBookmarkRemove = false
+    data.showNewBookmarkUI = false
+    data.newBookmark = (args) => Meteor.promise("bookmarks.create", args)
+    data.closeNewBookmarkUI = () => onData(null, data)
+    data.bookmarkSelected = (bookmarkId) => {
+      if(bookmarkId == "new") {
+        data.shouldDisplayBookmarkRemove = false
+        data.showNewBookmarkUI = true
+      } else {
+        data.showNewBookmarkUI = false
+        data.selectedBookmark.set(Bookmarks.findOne(bookmarkId))
+        if(data.selectedBookmark.get())
+          if(data.selectedBookmark.get().name)
+            data.shouldDisplayBookmarkRemove = true
+          else
+            data.shouldDisplayBookmarkRemove = false
+      }
+      onData(null, data)
+    }
+    Tracker.autorun(() => {
+      const bookmark = data.selectedBookmark.get()
+      console.log("Bookmark", bookmark)
+      if(bookmark && bookmark.sessionId != Meteor.connection._lastSessionId) {
+        const selection = Rangy.getSelection(document.getElementById("book-display"))
+        const data = bookmark.data
+        const container = document.getElementById("book-display")
+        if(container && data.rangeBookmarks.length) {
+          data.rangeBookmarks[0].containerNode = (container.contentDocument || container.contentWindow.document)
+          data.rangeBookmarks[0].containerNode = data.rangeBookmarks[0].containerNode.body
+          console.log("Updating position", data.rangeBookmarks[0])
+          selection.moveToBookmark(data)
+        }
+      }
+    })
+    if(!selectionWatcher) {
+      console.log("Starting selectionWatcher")
+      selectionWatcher = setInterval(() => {
+        const selection = Rangy.getSelection(document.getElementById("book-display"))
+        const bookmark = selection.getBookmark()
+        if(bookmark.rangeBookmarks.length && data.selectedBookmark.get() && bookmark.rangeBookmarks[0].start != data.selectedBookmark.get().data.rangeBookmarks[0].start) {
+          console.log("Updating bookmark", data.selectedBookmark.get().data.rangeBookmarks[0], bookmark.rangeBookmarks[0])
+          const id = data.selectedBookmark.get()._id
+          Meteor.promise("bookmarks.update", id, bookmark)
+          .then(() => data.selectedBookmark.set(Bookmarks.findOne(id)))
+        }
+      }, 5000)
+    }
+    onData(null, data)
+  }
+  return () => {
+    if(selectionWatcher) {
+      clearInterval(selectionWatcher)
+      selectionWatcher = null
+    }
+  }
+}
+
+const BookmarksMenu = composeWithTracker(BookmarksMenuContainer)(BookmarksMenuUI)
+
 const BookDisplayUI = ({id, title, canDownload, canEditMetadata}) => <div>
   <Helmet title={title}/>
   <Navbar>
@@ -155,6 +272,7 @@ const BookDisplayUI = ({id, title, canDownload, canEditMetadata}) => <div>
     <Navbar.Collapse>
       <Nav>
         { canDownload ? <NavItem href={`/files/${id}`}>Download</NavItem> : null }
+        <BookmarksMenu id={id}/>
         { canEditMetadata ? <LinkContainer to={`/books/${id}/edit`}><NavItem>Edit Metadata</NavItem></LinkContainer> : null }
       </Nav>
     </Navbar.Collapse>

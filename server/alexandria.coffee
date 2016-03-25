@@ -8,6 +8,7 @@ temp = require("temp")
 
 temp.track()
 
+Bookmarks = require("/lib/alexandria.jsx").Bookmarks
 Books = require("/lib/alexandria").Books
 Uploads = require("/lib/alexandria").Uploads
 
@@ -131,3 +132,59 @@ Meteor.methods
                   future.return(bookId)
         )
     future.wait()
+
+Meteor.publish "bookmarks", (bookId) ->
+  check bookId, String
+  Bookmarks.find({userId: @userId, bookId: bookId})
+
+Meteor.methods
+
+  "bookmarks.create": (bookId, name, data) ->
+    check bookId, String
+    check name, Match.Optional(String)
+    check data, Match.Optional(Object)
+    userId = Meteor.userId()
+    if userId?
+      book = Books.findOne(bookId)
+      if book?
+        name = "" unless name?
+        if Bookmarks.findOne({userId: userId, bookId: bookId, name: name})?
+          throw new Meteor.Error("Bookmark already exists")
+        else
+          unless data?
+            data =
+              backward: false
+              rangeBookmarks: [
+                start: 0
+                end: 0
+                containerNode: {}
+              ]
+          Bookmarks.insert({userId: userId, bookId: bookId, name: name, data: data})
+      else
+        throw new Meteor.Error(404, "Book not found")
+    else
+      throw new Meteor.Error(403, "Unauthorized")
+
+  "bookmarks.update": (bookmarkId, data) ->
+    check bookmarkId, String
+    check data, Object
+    userId = Meteor.userId()
+    if userId?
+      Bookmarks.update({_id: bookmarkId, userId: userId}, {$set: {data: data, sessionId: @connection.id}})
+    else
+      throw new Meteor.Error(403, "Unauthorized")
+
+  "bookmarks.remove": (bookmarkId) ->
+    check bookmarkId, String
+    userId = Meteor.userId()
+    if userId?
+      Bookmarks.remove({userId: Meteor.userId(), bookmarkId: bookmarkId})
+    else
+      throw new Meteor.Error(403, "Unauthorized")
+
+  "bookmarks.removeForBook": (bookId) ->
+    check bookId, String
+    if @connection.sandstormUser().permissions.indexOf("modify") != -1
+      Bookmarks.remove({bookId: bookId})
+    else
+      throw new Meteor.Error(403, "Unauthorized")
