@@ -5,6 +5,7 @@ import {Link} from "react-router"
 import {LinkContainer} from "react-router-bootstrap"
 
 import BookmarksMenu from "../containers/bookmarksmenu"
+import BookmarkWatcher from "../containers/bookmarkwatcher"
 
 export default ({id, title, canDownload, canEditMetadata}) => <div>
   <Helmet title={title}/>
@@ -21,5 +22,6 @@ export default ({id, title, canDownload, canEditMetadata}) => <div>
       </Nav>
     </Navbar.Collapse>
   </Navbar>
+  <BookmarkWatcher id={id}/>
   <iframe id="book-display" src={`/files/${id}/index.html`}/>
 </div>
