@@ -51,6 +51,7 @@ ordered-dict@1.0.5-rc.12
 promise@0.6.5-rc.12
 random@1.0.7-rc.12
 rate-limit@1.0.2-rc.12
+reactive-dict@1.1.5-rc.12
 reactive-var@1.0.7-rc.12
 reload@1.1.6-rc.12
 retry@1.0.5-rc.12

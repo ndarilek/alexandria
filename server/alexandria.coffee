@@ -8,27 +8,27 @@ temp = require("temp")
 
 temp.track()
 
-Bookmarks = require("/lib/alexandria.jsx").Bookmarks
-Books = require("/lib/alexandria").Books
-Uploads = require("/lib/alexandria").Uploads
+Bookmarks = require("/lib/collections").Bookmarks
+Books = require("/lib/collections").Books
+Uploads = require("/lib/collections").Uploads
 
 # TODO: Fix me
 Uploads.allow
   insert: ->
-    @connection?.sandstormUser()?.permissions?.indexOf("modify") != -1
+    true
   read: ->
     true
   write: ->
     true
   remove: ->
-    @connection?.sandstormUser()?.permissions?.indexOf("modify") != -1
+    false
 
 Htmlz = new FileCollection("htmlz")
 
 Books.find().observe
   removed: (doc) ->
-    Uploads.remove(doc?.files?.uploadId?)
-    Htmlz.remove(doc?.files?.htmlzId?)
+    Uploads.remove(new Mongo.ObjectID(doc?.files?.uploadId))
+    Htmlz.remove(new Mongo.ObjectID(doc?.files?.htmlzId))
 
 Meteor.publish "books", ->
   Books.find({})
@@ -76,6 +76,7 @@ Picker.route "/files/:id/:filename+", (params, req, res) ->
     res.end()
 
 Meteor.methods
+
   "books.editMetadata": (id, args) ->
     check id, String
     check args,
@@ -87,6 +88,13 @@ Meteor.methods
         Books.update(id, {$set: {"metadata.user": args}})
       else
         throw new Meteor.Error(404, "Not found")
+    else
+      throw new Meteor.Error(403, "Unauthorized")
+
+  "books.remove": (id) ->
+    check id, String
+    if @connection?.sandstormUser()?.permissions?.indexOf("modify") != -1
+      Books.remove(id)
     else
       throw new Meteor.Error(403, "Unauthorized")
 

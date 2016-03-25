@@ -21,3 +21,4 @@ check
 vsivsi:file-collection
 reactive-var
 accounts-base
+reactive-dict
