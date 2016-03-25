@@ -6,8 +6,9 @@ import BookmarkWatcher from "../components/bookmarkwatcher"
 
 let selectionWatcher = null
 
-const composer = ({context, id}, onData) => {
+const composer = ({actions, context, id}, onData) => {
   const {Meteor, State} = context()
+  const {bookmarks} = actions()
   if(Meteor.subscribe("bookmarks", id).ready()) {
     Tracker.autorun(() => {
       const bookmark = State.get("selectedBookmark")
@@ -33,7 +34,7 @@ const composer = ({context, id}, onData) => {
         if(bookmark.rangeBookmarks.length && selectedBookmark && bookmark.rangeBookmarks[0].start != selectedBookmark.data.rangeBookmarks[0].start) {
           console.log("Updating bookmark", selectedBookmark.data.rangeBookmarks[0], bookmark.rangeBookmarks[0])
           const id = selectedBookmark._id
-          Meteor.promise("bookmarks.update", id, bookmark)
+          bookmarks.update(id, bookmark)
           .then(() => State.set("selectedBookmark", Bookmarks.findOne(id)))
         }
       }, 5000)

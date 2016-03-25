@@ -27,6 +27,7 @@ Htmlz = new FileCollection("htmlz")
 
 Books.find().observe
   removed: (doc) ->
+    Bookmarks.remove({bookId: doc._id})
     Uploads.remove(new Mongo.ObjectID(doc?.files?.uploadId))
     Htmlz.remove(new Mongo.ObjectID(doc?.files?.htmlzId))
 
@@ -187,12 +188,5 @@ Meteor.methods
     userId = Meteor.userId()
     if userId?
       Bookmarks.remove({userId: Meteor.userId(), bookmarkId: bookmarkId})
-    else
-      throw new Meteor.Error(403, "Unauthorized")
-
-  "bookmarks.removeForBook": (bookId) ->
-    check bookId, String
-    if @connection.sandstormUser().permissions.indexOf("modify") != -1
-      Bookmarks.remove({bookId: bookId})
     else
       throw new Meteor.Error(403, "Unauthorized")

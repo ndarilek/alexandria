@@ -16,8 +16,9 @@ export default React.createClass({
     e.preventDefault()
     const form = this.refs.form.getForm()
     if(form.validate())
-      this.props.onSubmit(form.cleanedData)
+      this.props.edit(this.props.id, form.cleanedData)
       .then(() => browserHistory.push(`/books/${this.props.id}`))
+      .catch((err) => console.error(err))
   },
 
   render() {

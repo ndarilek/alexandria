@@ -13,13 +13,17 @@ const composer = ({context, params}, onData) => {
     onData(null, {
       id,
       title: title(book),
-      author: author(book),
-      onSubmit: (args) => Meteor.promise("books.editMetadata", id, args)
+      author: author(book)
     })
   }
 }
 
+const depsMapper = (context, actions) => ({
+  edit: actions.books.edit,
+  context: () => context
+})
+
 export default composeAll(
   composeWithTracker(composer),
-  useDeps()
+  useDeps(depsMapper)
 )(BookEdit)

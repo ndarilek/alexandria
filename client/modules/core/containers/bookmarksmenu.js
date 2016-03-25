@@ -3,18 +3,18 @@ import {useDeps, composeWithTracker, composeAll} from "mantra-core"
 import {Bookmarks} from "/lib/collections"
 import BookmarksMenu from "../components/bookmarksmenu"
 
-const composer = ({context, id}, onData) => {
+const composer = ({actions, context, id}, onData) => {
   const {Meteor, State} = context()
+  const {bookmarks} = actions()
   if(Meteor.subscribe("bookmarks", id).ready()) {
     const data = {}
     data.shouldDisplayBookmarks = Meteor.userId() != null
     if(data.shouldDisplayBookmarks && !Bookmarks.findOne({bookId: id, name: ""}))
-      Meteor.promise("bookmarks.create", id)
+      bookmarks.create(id)
     State.set("selectedBookmark", Bookmarks.findOne({bookId: id, name: ""}))
     data.bookmarks = Bookmarks.find({bookId: id}).fetch()
     State.set("shouldDisplayBookmarkRemove", false)
     data.showNewBookmarkUI = false
-    data.newBookmark = (args) => Meteor.promise("bookmarks.create", args)
     data.closeNewBookmarkUI = () => onData(null, data)
     data.bookmarkSelected = (bookmarkId) => {
       if(bookmarkId == "new") {
@@ -35,7 +35,12 @@ const composer = ({context, id}, onData) => {
   }
 }
 
+const depsMapper = (context, actions) => ({
+  create: actions.books.create,
+  context: () => context
+})
+
 export default composeAll(
   composeWithTracker(composer),
-  useDeps()
+  useDeps(depsMapper)
 )(BookmarksMenu)

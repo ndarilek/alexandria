@@ -5,8 +5,9 @@ import Upload from "../components/upload"
 import {Uploads} from "/lib/collections"
 import {hasPermission} from "../libs/sandstorm"
 
-const composer = ({context}, onData) => {
+const composer = ({actions, context}, onData) => {
   const {browserHistory, Meteor} = context()
+  const {books} = actions()
   data = {}
   data.fileAdded = (file) => {
     Uploads.insert({
@@ -19,7 +20,7 @@ const composer = ({context}, onData) => {
       else {
         Uploads.resumable.on("complete", () => {
           data.converting = true
-          Meteor.promise("books.create", file.uniqueIdentifier)
+          books.create(file.uniqueIdentifier)
           .then((id) => browserHistory.push(`/books/${id}`))
           onData(null, data)
         })

@@ -34,7 +34,7 @@ export default ({books, canUpload, canRemove, remove}) => <div>
         <td>{author(b)}</td>
         { canRemove ? <td><Button onClick={() => {
           if(confirm("Are you sure?"))
-            remove(b._id)()
+            remove(b._id)
         }}>Remove</Button></td>: null }
       </tr>)}
     </tbody>

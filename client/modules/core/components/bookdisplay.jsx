@@ -7,8 +7,8 @@ import {LinkContainer} from "react-router-bootstrap"
 import BookmarksMenu from "../containers/bookmarksmenu"
 import BookmarkWatcher from "../containers/bookmarkwatcher"
 
-export default ({id, title, canDownload, canEditMetadata}) => <div>
-  <Helmet title={title}/>
+export default (props) => <div>
+  <Helmet title={props.title}/>
   <Navbar>
     <Navbar.Header>
       <Navbar.Brand><Link to="/">Alexandria</Link></Navbar.Brand>
@@ -16,12 +16,12 @@ export default ({id, title, canDownload, canEditMetadata}) => <div>
     </Navbar.Header>
     <Navbar.Collapse>
       <Nav>
-        { canDownload ? <NavItem href={`/files/${id}`}>Download</NavItem> : null }
-        <BookmarksMenu id={id}/>
-        { canEditMetadata ? <LinkContainer to={`/books/${id}/edit`}><NavItem>Edit Metadata</NavItem></LinkContainer> : null }
+        { props.canDownload ? <NavItem href={`/files/${props.id}`}>Download</NavItem> : null }
+        <BookmarksMenu {...props}/>
+        { props.canEditMetadata ? <LinkContainer to={`/books/${props.id}/edit`}><NavItem>Edit Metadata</NavItem></LinkContainer> : null }
       </Nav>
     </Navbar.Collapse>
   </Navbar>
-  <BookmarkWatcher id={id}/>
-  <iframe id="book-display" src={`/files/${id}/index.html`}/>
+  <BookmarkWatcher {...props}/>
+  <iframe id="book-display" src={`/files/${props.id}/index.html`}/>
 </div>
