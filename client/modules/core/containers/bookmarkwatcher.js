@@ -12,7 +12,6 @@ const composer = ({actions, context, id}, onData) => {
   if(Meteor.subscribe("bookmarks", id).ready()) {
     Tracker.autorun(() => {
       const bookmark = State.get("selectedBookmark")
-      console.log("Bookmark", bookmark.data.rangeBookmarks[0])
       if(bookmark && bookmark.sessionId != Meteor.connection._lastSessionId) {
         const selection = Rangy.getSelection(document.getElementById("book-display"))
         const data = bookmark.data
