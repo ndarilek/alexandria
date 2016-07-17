@@ -79,6 +79,7 @@ Picker.route "/files/:id/:filename+", (params, req, res) ->
 Meteor.methods
 
   "books.editMetadata": (id, args) ->
+    console.log("Called")
     check id, String
     check args,
       title: Match.Optional(String)
@@ -150,8 +151,8 @@ Meteor.methods
 
   "bookmarks.create": (bookId, name, data) ->
     check bookId, String
-    check name, Match.Optional(String)
-    check data, Match.Optional(Object)
+    check name, Match.Maybe(String)
+    check data, Match.Maybe(Object)
     userId = Meteor.userId()
     if userId?
       book = Books.findOne(bookId)

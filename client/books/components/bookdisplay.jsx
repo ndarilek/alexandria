@@ -4,8 +4,7 @@ import Helmet from "react-helmet"
 import {Link} from "react-router"
 import {LinkContainer} from "react-router-bootstrap"
 
-import BookmarksMenu from "../containers/bookmarksmenu"
-import BookmarkWatcher from "../containers/bookmarkwatcher"
+import {BookmarksMenu, BookmarkWatcher} from "/client/bookmarks"
 
 export default (props) => <div>
   <Helmet title={props.title}/>

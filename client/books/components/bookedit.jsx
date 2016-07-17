@@ -16,24 +16,27 @@ export default React.createClass({
     e.preventDefault()
     const form = this.refs.form.getForm()
     if(form.validate())
-      this.props.edit(this.props.id, form.cleanedData)
+      this.props.edit(form.cleanedData)
       .then(() => browserHistory.push(`/books/${this.props.id}`))
       .catch((err) => console.error(err))
   },
 
   render() {
-    const f = new this.form({initial: {title: this.props.title, author: this.props.author}})
-    return <div>
-      <Helmet title="Edit Metadata"/>
-      <h1>Edit Metadata</h1>
-      <form onSubmit={this.onSubmit}>
-        <forms.RenderForm ref="form" form={f}>
-          <BootstrapForm/>
-        </forms.RenderForm>
-        <Button type="submit">Save</Button>
-        <Button onClick={() => browserHistory.push(`/books/${this.props.id}`)}>Cancel</Button>
-      </form>
-    </div>
+    if(this.props.ready) {
+      const f = new this.form({data: {title: this.props.title, author: this.props.author}})
+      return <div>
+        <Helmet title="Edit Metadata"/>
+        <h1>Edit Metadata</h1>
+        <form onSubmit={this.onSubmit}>
+          <forms.RenderForm ref="form" form={f}>
+            <BootstrapForm/>
+          </forms.RenderForm>
+          <Button type="submit">Save</Button>
+          <Button onClick={() => browserHistory.push(`/books/${this.props.id}`)}>Cancel</Button>
+        </form>
+      </div>
+    } else
+      return <p>Loading...</p>
   }
 
 })

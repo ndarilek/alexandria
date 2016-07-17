@@ -1,7 +1,7 @@
 import React from "react"
 import {Navbar} from "react-bootstrap"
 import Helmet from "react-helmet"
-import {Link} from "react-router"
+import {Link, browserHistory} from "react-router"
 
 import {Uploads} from "/lib/collections"
 
@@ -9,12 +9,21 @@ export default class extends React.Component {
 
   componentDidMount() {
     Uploads.resumable.assignBrowse(this.refs.file)
-    Uploads.resumable.on("fileAdded", this.props.fileAdded)
+    Uploads.resumable.on("fileAdded", this.fileAdded.bind(this))
     Uploads.resumable.on("progress", (progress) => this.setState({progress}))
   }
 
+  fileAdded(file) {
+    this.props.fileAdded(file)
+    .then((action) => this.props.create(action.payload))
+    .then((action) => {
+      console.log("id", action)
+      browserHistory.push(`/books/${action.payload}`)
+    })
+  }
+
   render() {
-    if(this.props.converting)
+    if(this.state && this.state.converting)
       return <div>
         <h1>Converting...</h1>
       </div>

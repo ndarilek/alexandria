@@ -4,7 +4,7 @@ import Helmet from "react-helmet"
 import {Link} from "react-router"
 import {LinkContainer} from "react-router-bootstrap"
 
-import {author, title} from "../libs/book"
+import {author, title} from "../../lib/book"
 
 export default ({books, canUpload, canRemove, remove}) => <div>
   <Helmet title="Books"/>
