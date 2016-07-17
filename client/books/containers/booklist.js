@@ -8,7 +8,7 @@ import BookList from "../components/booklist"
 import {hasPermission} from "/client/lib/sandstorm"
 import {Books} from "/lib/collections"
 
-const mapDispatchToProps = (state, dispatch) => ({
+const mapDispatchToProps = (dispatch) => ({
   remove: (id) => dispatch(remove(id))
 })
 
