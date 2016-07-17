@@ -45,5 +45,5 @@ Meteor.startup(() => {
         </Route>
       </Router>
     </Provider>
-  , document.body)
+  , document.querySelector("#app"))
 })
