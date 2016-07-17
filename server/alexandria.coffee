@@ -79,7 +79,6 @@ Picker.route "/files/:id/:filename+", (params, req, res) ->
 Meteor.methods
 
   "books.editMetadata": (id, args) ->
-    console.log("Called")
     check id, String
     check args,
       title: Match.Optional(String)
