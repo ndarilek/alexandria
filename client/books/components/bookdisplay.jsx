@@ -22,5 +22,5 @@ export default (props) => <div>
     </Navbar.Collapse>
   </Navbar>
   <BookmarkWatcher {...props}/>
-  <iframe id="book-display" src={`/files/${props.id}/index.html`}/>
+  <iframe role="document" id="book-display" src={`/files/${props.id}/index.html`}/>
 </div>
