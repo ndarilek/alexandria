@@ -16,10 +16,7 @@ export default class extends React.Component {
   fileAdded(file) {
     this.props.fileAdded(file)
     .then((action) => this.props.create(action.payload))
-    .then((action) => {
-      console.log("id", action)
-      browserHistory.push(`/books/${action.payload}`)
-    })
+    .then((action) => browserHistory.push(`/books/${action.payload}`))
   }
 
   render() {
