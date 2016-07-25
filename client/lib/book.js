@@ -14,12 +14,15 @@ export const title = (book) => {
 }
 
 export const author = (book) => {
+  console.log("Book", book)
   if(book)
     if(book.metadata)
       if(book.metadata.user && book.metadata.user.author)
         return book.metadata.user.author
       else if(book.metadata.original && book.metadata.original["dc:creator"] && book.metadata.original["dc:creator"].char)
         return book.metadata.original["dc:creator"].char
+    else
+      return ""
   else
     return ""
 }
