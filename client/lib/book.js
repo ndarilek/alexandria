@@ -14,7 +14,6 @@ export const title = (book) => {
 }
 
 export const author = (book) => {
-  console.log("Book", book)
   if(book)
     if(book.metadata)
       if(book.metadata.user && book.metadata.user.author)
